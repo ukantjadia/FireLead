@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}FireLead - Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Analytics Dashboard</h1>
+        <div class="date-filter">
+            <select id="timeRange">
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <!-- Key Metrics -->
+        <div class="metric-card">
+            <h3>Total Leads</h3>
+            <div class="metric-value" id="totalLeads">0</div>
+            <div class="metric-trend">
+                <span class="trend-icon">↑</span>
+                <span class="trend-value">0%</span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Average Lead Score</h3>
+            <div class="metric-value" id="avgLeadScore">0</div>
+            <div class="metric-chart">
+                <canvas id="leadScoreChart"></canvas>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Lead Quality Distribution</h3>
+            <div class="metric-chart">
+                <canvas id="qualityDistChart"></canvas>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <h3>Industry Distribution</h3>
+            <div class="metric-chart">
+                <canvas id="industryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="export-section">
+        <h2>Export Data</h2>
+        <div class="export-options">
+            <div class="export-card">
+                <h3>Hubspot</h3>
+                <p>Export leads directly to Hubspot CRM</p>
+                <button class="btn btn-primary export-btn" data-format="hubspot">Export to Hubspot</button>
+            </div>
+
+            <div class="export-card">
+                <h3>Salesforce</h3>
+                <p>Export leads to Salesforce CRM</p>
+                <button class="btn btn-primary export-btn" data-format="salesforce">Export to Salesforce</button>
+            </div>
+
+            <div class="export-card">
+                <h3>Pipedrive</h3>
+                <p>Export leads to Pipedrive CRM</p>
+                <button class="btn btn-primary export-btn" data-format="pipedrive">Export to Pipedrive</button>
+            </div>
+
+            <div class="export-card">
+                <h3>CSV Format</h3>
+                <p>Download in standard CSV format</p>
+                <button class="btn btn-secondary export-btn" data-format="csv">Download CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="recent-leads">
+        <h2>Recent Leads</h2>
+        <div class="table-container">
+            <table id="recentLeadsTable">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Lead Score</th>
+                        <th>Industry</th>
+                        <th>Contact</th>
+                        <th>Date Added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='analytics.js') }}"></script>
+{% endblock %}

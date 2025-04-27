@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced File Extraction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .field-specification {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .add-field-btn {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Enhanced File Extraction</h2>
+        <form id="extractionForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Upload File (CSV/Excel)</label>
+                <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx,.xls" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="urlColumn" class="form-label">URL Column Name</label>
+                <input type="text" class="form-control" id="urlColumn" name="url_column" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="prompt" class="form-label">Extraction Prompt</label>
+                <textarea class="form-control" id="prompt" name="prompt_user" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <h4>Field Specifications (Optional)</h4>
+                <button type="button" class="btn btn-primary add-field-btn" onclick="addFieldSpecification()">
+                    Add Field Specification
+                </button>
+                <div id="fieldSpecifications">
+                    <!-- Field specifications will be added here -->
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Extract Data</button>
+        </form>
+
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <script>
+        let fieldCount = 0;
+
+        function addFieldSpecification() {
+            const container = document.getElementById('fieldSpecifications');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-specification';
+            fieldDiv.id = `field-${fieldCount}`;
+
+            fieldDiv.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Field Name" name="field_name_${fieldCount}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="field_type_${fieldCount}" required>
+                            <option value="str">String</option>
+                            <option value="bool">Boolean</option>
+                            <option value="number">Number</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Description" name="description_${fieldCount}" required>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger" onclick="removeFieldSpecification(${fieldCount})">×</button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(fieldDiv);
+            fieldCount++;
+        }
+
+        function removeFieldSpecification(id) {
+            const field = document.getElementById(`field-${id}`);
+            field.remove();
+        }
+
+        document.getElementById('extractionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('file', document.getElementById('file').files[0]);
+            formData.append('url_column', document.getElementById('urlColumn').value);
+            formData.append('prompt_user', document.getElementById('prompt').value);
+
+            // Collect field specifications
+            const fieldSpecs = [];
+            for (let i = 0; i < fieldCount; i++) {
+                const fieldDiv = document.getElementById(`field-${i}`);
+                if (fieldDiv) {
+                    fieldSpecs.push({
+                        field_name: document.querySelector(`[name="field_name_${i}"]`).value,
+                        field_type: document.querySelector(`[name="field_type_${i}"]`).value,
+                        description: document.querySelector(`[name="description_${i}"]`).value
+                    });
+                }
+            }
+
+            if (fieldSpecs.length > 0) {
+                formData.append('field_specifications', JSON.stringify(fieldSpecs));
+            }
+
+            try {
+                const response = await fetch('/extract_data_from_file_enhanced/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-success">
+                        ${result.message}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger">
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

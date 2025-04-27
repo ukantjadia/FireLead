@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}FireLead - Results{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% else %}
+    <h2>Extraction Results</h2>
+    {% if sample_data %}
+    <p>Here's a sample of the extracted data (showing first 5 entries). The complete dataset has been saved.</p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                {% for key in sample_data[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+            </thead>
+            <tbody>
+                {% for row in sample_data %}
+                <tr>
+                    {% for value in row.values() %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="results-info">
+        <p>Excel file saved as: <strong>{{ filename }}</strong></p>
+        <p>Total records extracted: <strong>{{ total_records }}</strong></p>
+    </div>
+    {% else %}
+    <p>No data available. Please perform an extraction first.</p>
+    {% endif %}
+    {% endif %}
+</div>
+
+<div class="download-button-container">
+    {% if sample_data %}
+    <a href="{{ url_for('download_results') }}" class="btn btn-primary">
+        Download Complete Dataset
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

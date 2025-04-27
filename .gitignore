@@ -1,0 +1,7 @@
+__pycache__/
+
+.venv
+.env
+*.pyc
+data
+video_script.md
